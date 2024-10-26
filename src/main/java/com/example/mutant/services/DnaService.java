@@ -37,21 +37,26 @@ public class DnaService {
     }
 
     private int findHorizontalSequences(String[] dna) {
-        return (int) IntStream.range(0, dna.length)
-                .filter(i -> sequenceCounter(dna[i]) > 0)
-                .count();
+        int matchCount = 0;
+        for (String row : dna) {
+            matchCount += sequenceCounter(row);
+        }
+        return matchCount;
     }
 
     private int findVerticalSequences(String[] dna) {
         int n = dna.length;
-        return (int) IntStream.range(0, n)
-                .filter(j -> {
-                    StringBuilder columnData = new StringBuilder();
-                    for (int i = 0; i < n; i++) {
-                        columnData.append(dna[i].charAt(j));
-                    }
-                    return sequenceCounter(columnData.toString()) > 0;
-                }).count();
+        int matchCount = 0;
+
+        for (int j = 0; j < n; j++) {
+            StringBuilder columnData = new StringBuilder();
+            for (int i = 0; i < n; i++) {
+                columnData.append(dna[i].charAt(j));
+            }
+            matchCount += sequenceCounter(columnData.toString());
+        }
+
+        return matchCount;
     }
 
     private int findDiagonalSequences(String[] dna) {
@@ -72,20 +77,17 @@ public class DnaService {
     }
 
     private int sequenceCounter(String sequence) {
-        int count = 0, streak = 1;
-        char previousChar = sequence.charAt(0);
+        int count = 0;
+        int streak = 1;
 
         for (int i = 1; i < sequence.length(); i++) {
-            if (sequence.charAt(i) == previousChar) {
+            if (sequence.charAt(i) == sequence.charAt(i - 1)) {
                 streak++;
                 if (streak == MIN_SEQUENCE_LENGTH) {
                     count++;
-                    streak = 1;
-                    if (count > 1) return count;
                 }
             } else {
-                previousChar = sequence.charAt(i);
-                streak = 1;
+                streak = 1; // reset streak
             }
         }
         return count;

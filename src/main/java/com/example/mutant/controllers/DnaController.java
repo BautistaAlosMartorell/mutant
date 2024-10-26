@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin(origins = "*")
-@RequestMapping("api/v1/mutant")
+@RequestMapping("/mutant")
 public class DnaController {
 
     private final DnaService dnaService;
@@ -21,7 +21,7 @@ public class DnaController {
         this.dnaService = dnaService;
     }
 
-    @PostMapping("/verify")
+    @PostMapping("")
     public ResponseEntity<DnaResponse> verifyMutantStatus(@Valid @RequestBody DnaRequest dnaRequest) {
         boolean mutantDetected = dnaService.saveDnaRecord(dnaRequest.getDna());
         DnaResponse dnaResponse = new DnaResponse(mutantDetected);
