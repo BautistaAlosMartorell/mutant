@@ -19,7 +19,7 @@ public class StatsController {
     }
 
     @GetMapping
-    public StatsResponse retrieveStats() {
+    public StatsResponse getStats() {
         return statsService.fetchDnaStatistics();
     }
 }
