@@ -17,25 +17,29 @@ public class DnaService {
         this.dnaRepo = dnaRepo;
     }
 
+    // revisa si el adn tiene más de una secuencia de cuatro letras iguales
     public boolean detectMutant(String[] dna) {
         validateDnaFormat(dna);
 
+        // suma todas las secuencias que encuentre horizontal, vertical y diagonal
         int sequenceMatches = IntStream.of(
                 findHorizontalSequences(dna),
                 findVerticalSequences(dna),
                 findDiagonalSequences(dna)
         ).parallel().sum();
 
-        return sequenceMatches > 1;
+        return sequenceMatches > 1; // si encuentra más de una secuencia, es mutante
     }
 
+    // asegura que el adn es cuadrado y solo contiene caracteres A, T, G o C
     private void validateDnaFormat(String[] dna) {
         if (dna == null || dna.length == 0 || !IntStream.range(0, dna.length)
                 .allMatch(i -> dna[i] != null && dna[i].matches("[ATGC]+") && dna[i].length() == dna.length)) {
-            throw new IllegalArgumentException("Invalid DNA format. Only 'A', 'T', 'G', 'C' are allowed in NxN structure.");
+            throw new IllegalArgumentException("formato de adn no válido, solo A, T, G y C en estructura NxN");
         }
     }
 
+    // busca secuencias en cada fila
     private int findHorizontalSequences(String[] dna) {
         int matchCount = 0;
         for (String row : dna) {
@@ -44,6 +48,7 @@ public class DnaService {
         return matchCount;
     }
 
+    // busca secuencias en cada columna
     private int findVerticalSequences(String[] dna) {
         int n = dna.length;
         int matchCount = 0;
@@ -59,6 +64,7 @@ public class DnaService {
         return matchCount;
     }
 
+    // busca secuencias en diagonales de izquierda a derecha
     private int findDiagonalSequences(String[] dna) {
         int size = dna.length;
         int diagonalMatches = 0;
@@ -76,6 +82,7 @@ public class DnaService {
         return diagonalMatches;
     }
 
+    // cuenta secuencias de cuatro letras iguales seguidas en la cadena que le pases
     private int sequenceCounter(String sequence) {
         int count = 0;
         int streak = 1;
@@ -87,16 +94,18 @@ public class DnaService {
                     count++;
                 }
             } else {
-                streak = 1; // reset streak
+                streak = 1; // resetea la racha si la secuencia se corta
             }
         }
         return count;
     }
 
+    // guarda el adn y devuelve si es mutante o no
     public boolean saveDnaRecord(String[] dna) {
         String dnaJoined = String.join(",", dna);
         Optional<Dna> existingRecord = dnaRepo.findByDna(dnaJoined);
 
+        // si ya existe, devuelve el resultado guardado para no analizarlo de nuevo
         if (existingRecord.isPresent()) {
             return existingRecord.get().isMutant();
         }
