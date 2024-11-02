@@ -3,7 +3,6 @@ package com.example.mutant.validators;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Set;
-import java.util.HashSet;
 
 public class DnaValidator implements ConstraintValidator<ValidDna, String[]> {
 
