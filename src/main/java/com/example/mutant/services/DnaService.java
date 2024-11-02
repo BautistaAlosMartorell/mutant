@@ -18,7 +18,7 @@ public class DnaService {
     }
 
     // revisa si el adn tiene más de una secuencia de cuatro letras iguales
-    public boolean detectMutant(String[] dna) {
+    public static boolean isMutant(String[] dna) {
         validateDnaFormat(dna);
 
         // suma todas las secuencias que encuentre horizontal, vertical y diagonal
@@ -32,7 +32,7 @@ public class DnaService {
     }
 
     // asegura que el adn es cuadrado y solo contiene caracteres A, T, G o C
-    private void validateDnaFormat(String[] dna) {
+    private static void validateDnaFormat(String[] dna) {
         if (dna == null || dna.length == 0 || !IntStream.range(0, dna.length)
                 .allMatch(i -> dna[i] != null && dna[i].matches("[ATGC]+") && dna[i].length() == dna.length)) {
             throw new IllegalArgumentException("formato de adn no válido, solo A, T, G y C en estructura NxN");
@@ -40,7 +40,7 @@ public class DnaService {
     }
 
     // busca secuencias en cada fila
-    private int findHorizontalSequences(String[] dna) {
+    private static int findHorizontalSequences(String[] dna) {
         int matchCount = 0;
         for (String row : dna) {
             matchCount += sequenceCounter(row);
@@ -49,7 +49,7 @@ public class DnaService {
     }
 
     // busca secuencias en cada columna
-    private int findVerticalSequences(String[] dna) {
+    private static int findVerticalSequences(String[] dna) {
         int n = dna.length;
         int matchCount = 0;
 
@@ -65,25 +65,45 @@ public class DnaService {
     }
 
     // busca secuencias en diagonales de izquierda a derecha
-    private int findDiagonalSequences(String[] dna) {
+    private static int findDiagonalSequences(String[] dna) {
         int size = dna.length;
         int diagonalMatches = 0;
 
-        for (int k = 0; k < size - MIN_SEQUENCE_LENGTH + 1; k++) {
-            String leftDiagonal = "", rightDiagonal = "";
+        // buscar diagonales de izquierda a derecha
+        for (int i = 0; i < size; i++) {
+            StringBuilder leftDiagonal = new StringBuilder();
+            StringBuilder rightDiagonal = new StringBuilder();
 
-            for (int i = 0; i < size - k; i++) {
-                leftDiagonal += dna[i].charAt(i + k);
-                rightDiagonal += dna[i + k].charAt(i);
+            for (int j = 0; j < size - i; j++) {
+                leftDiagonal.append(dna[j].charAt(i + j)); // diagonal hacia abajo
+                rightDiagonal.append(dna[i + j].charAt(j)); // diagonal hacia arriba
             }
-            diagonalMatches += sequenceCounter(leftDiagonal) + sequenceCounter(rightDiagonal);
+            diagonalMatches += sequenceCounter(leftDiagonal.toString());
+            if (i > 0) {
+                diagonalMatches += sequenceCounter(rightDiagonal.toString());
+            }
+        }
+
+        // buscar diagonales de derecha a izquierda
+        for (int i = 0; i < size; i++) {
+            StringBuilder leftDiagonal = new StringBuilder();
+            StringBuilder rightDiagonal = new StringBuilder();
+
+            for (int j = 0; j <= i && j < size; j++) {
+                leftDiagonal.append(dna[j].charAt(size - 1 - i + j)); // diagonal hacia abajo
+                rightDiagonal.append(dna[i - j].charAt(size - 1 - j)); // diagonal hacia arriba
+            }
+            diagonalMatches += sequenceCounter(leftDiagonal.toString());
+            if (i > 0) {
+                diagonalMatches += sequenceCounter(rightDiagonal.toString());
+            }
         }
 
         return diagonalMatches;
     }
 
     // cuenta secuencias de cuatro letras iguales seguidas en la cadena que le pases
-    private int sequenceCounter(String sequence) {
+    private static int sequenceCounter(String sequence) {
         int count = 0;
         int streak = 1;
 
@@ -110,7 +130,7 @@ public class DnaService {
             return existingRecord.get().isMutant();
         }
 
-        boolean isMutant = detectMutant(dna);
+        boolean isMutant = isMutant(dna); // Cambiado a isMutant
         Dna dnaEntity = Dna.builder()
                 .dna(dnaJoined)
                 .isMutant(isMutant)
